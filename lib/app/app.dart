@@ -1,5 +1,11 @@
+import 'package:chatmate/app/home_screen.dart';
+import 'package:chatmate/app/routes.dart';
 import 'package:chatmate/core/theme/app_theme.dart';
+import 'package:chatmate/features/auth/viewmodels/auth_viewmodel.dart';
+import 'package:chatmate/features/auth/views/login_screen.dart';
+import 'package:chatmate/features/auth/views/signup_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ChatMateApp extends StatelessWidget {
   const ChatMateApp({super.key});
@@ -12,7 +18,27 @@ class ChatMateApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system, // Auto light/dark mode
       debugShowCheckedModeBanner: false, // Remove debug banner
-      home: _buildLoadingScreen(),
+      // Named routes for navigation
+      routes: {
+        AppRoutes.login: (context) => const LoginScreen(),
+        AppRoutes.signup: (context) => const SignupScreen(),
+        AppRoutes.home: (context) => const HomeScreen(),
+      },
+
+      // Check auth state and show appropriate screen
+      home: Consumer<AuthViewModel>(
+        builder: (context, authViewModel, child) {
+          // Show loading while checking auth state
+          if (authViewModel.isLoading && authViewModel.currentUser == null) {
+            return _buildLoadingScreen();
+          }
+
+          // Show home if logged in, login if not
+          return authViewModel.isLoggedIn
+              ? const HomeScreen()
+              : const LoginScreen();
+        },
+      ),
     );
   }
 
